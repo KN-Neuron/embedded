@@ -1,0 +1,18 @@
+# Build environment
+.pio
+.vscode
+
+# Logs
+log
+*.log
+
+# Compiled files
+*.o
+
+# Binaries
+*.bin
+*.hex
+*.elf
+
+# Map files
+*.map
