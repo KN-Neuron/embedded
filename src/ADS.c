@@ -103,9 +103,6 @@ static void ADS_RDATA() {
 
 /* Initialize the ADS. */
 void ADS_Init() {
-	/* 0x50 = powered on, 12x gain, SRB2 open, normal input */
-	int mode = 0b01010000;
-
 	puts("Start INIT ADS\r\n");
 	ADS_Transmit(_RESET);
 	puts("Send RESET command\r\n");
@@ -115,14 +112,14 @@ void ADS_Init() {
 	ADS_WREG(CONFIG2, 0x10);
 	ADS_WREG(CONFIG3, 0xDC);
 	ADS_WREG(LOFF, 0x03);
-	ADS_WREG(CH1SET, mode);
-	ADS_WREG(CH2SET, mode);
-	ADS_WREG(CH3SET, mode);
-	ADS_WREG(CH4SET, mode);
-	ADS_WREG(CH5SET, mode);
-	ADS_WREG(CH6SET, mode);
-	ADS_WREG(CH7SET, mode);
-	ADS_WREG(CH8SET, mode);
+	ADS_WREG(CH1SET, INPUT_MODE);
+	ADS_WREG(CH2SET, INPUT_MODE);
+	ADS_WREG(CH3SET, INPUT_MODE);
+	ADS_WREG(CH4SET, INPUT_MODE);
+	ADS_WREG(CH5SET, INPUT_MODE);
+	ADS_WREG(CH6SET, INPUT_MODE);
+	ADS_WREG(CH7SET, INPUT_MODE);
+	ADS_WREG(CH8SET, INPUT_MODE);
 	ADS_WREG(BIAS_SENSP, 0x00);
 	ADS_WREG(BIAS_SENSN, 0x00);
 	ADS_WREG(LOFF_SENSP, 0xFF);
