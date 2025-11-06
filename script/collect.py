@@ -2,7 +2,7 @@ import serial
 from sys import argv
 
 # Otwarcie portu
-ser = serial.Serial('/dev/ttyACM0', baudrate=115200)
+ser = serial.Serial('COM6', baudrate=115200)
 # Otwarcie pliku do zapisu danych
 with open(argv[1], 'w') as f:
     while True:
