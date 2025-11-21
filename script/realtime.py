@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from collections import deque
 from glob import glob
 from serial import Serial

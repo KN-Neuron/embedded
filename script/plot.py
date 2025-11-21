@@ -1,6 +1,9 @@
+#!/usr/bin/python3
 import matplotlib.pyplot as plt
 import numpy as np
 from sys import argv
+
+Fs = 250
 
 # Czytanie danych z pliku
 data = []
@@ -28,7 +31,7 @@ signal = data_array[2]
 
 # Obliczenie FFT
 fft_vals = np.fft.fft(signal)
-fft_freqs = np.fft.fftfreq(len(signal))
+fft_freqs = np.fft.fftfreq(len(signal), 1/Fs)
 
 # Rysowanie wykresów
 fig, axs = plt.subplots(8, 1, figsize=(10, 8))
