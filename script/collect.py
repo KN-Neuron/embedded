@@ -43,9 +43,10 @@ with open(filename, 'w') as f:
             # Sprawdzanie, czy dane rozpoczynają się od 'ADS:'
             if decoded_data.startswith('ADS:'):
                 # Rozdzielenie danych separatorami ','
-                data_fields = decoded_data.strip().split(':')[1].split(',')
+                data_fields = decoded_data.strip().split(':')[1][1:]#.split(',')
+                # print(data_fields)
                 # Zapisanie danych do pliku
-                f.write(','.join(data_fields) + '\n')
+                f.write(data_fields + '\n')
                 # print(f"Zapisano dane: {data_fields}")
         except KeyboardInterrupt:
             print("Data collection stopped by user.")

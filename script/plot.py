@@ -10,7 +10,7 @@ data = []
 with open(argv[1], 'r') as f:
     for i, line in enumerate(f):
         parts = line.strip().split(',')
-        if len(parts) != 8:
+        if len(parts) != 1:
             print(f"Bad row at", i, "skipping")
             continue
         try:
@@ -45,29 +45,31 @@ filtered_signal = signal_hp
 fft_vals = np.fft.fft(filtered_signal)
 
 # Rysowanie wykresów
-fig, axs = plt.subplots(8, 1, figsize=(10, 8))
+# Change: Create only 2 rows instead of 8. 
+# You can adjust figsize (width, height) as preferred.
+fig, axs = plt.subplots(2, 1, figsize=(10, 8))
 
 # Wykres sygnału w czasie (oryginał vs przefiltrowany)
 # Oś czasu w sekundach
 t = np.arange(N) / Fs
-axs[2].plot(t, signal, color='0.7', label='Oryginał')
-axs[2].plot(t, filtered_signal, color='C0', label='HP 0.5 Hz')
-axs[2].set_title("Sygnał w czasie (kolumna 3) - oryginał vs filtr")
-axs[2].set_xlabel("Czas [s]")
-axs[2].set_ylabel("Wartość")
-axs[2].legend()
+
+# Change: Use index [0] (the top plot)
+axs[0].plot(t, signal, color='0.7', label='Original')
+axs[0].plot(t, filtered_signal, color='C0', label='HP 0.5 Hz')
+axs[0].set_title("Signal in time (column 3) - original vs filter")
+axs[0].set_xlabel("Time [s]")
+axs[0].set_ylabel("Value")
+axs[0].legend(loc='upper right') # Added loc to prevent covering data
 
 # Wykres FFT (tylko dodatnie częstotliwości) — widmo sygnału przefiltrowanego
 pos_mask = fft_freqs >= 0
-axs[3].plot(fft_freqs[pos_mask], np.abs(fft_vals[pos_mask]))
-axs[3].set_title("Widmo FFT sygnału przefiltrowanego (HP 0.5 Hz)")
-axs[3].set_xlabel("Częstotliwość [Hz]")
-axs[3].set_ylabel("Amplituda")
 
-# Pozostałe wykresy ukrywamy
-for i in range(8):
-    if i not in [2, 3]:
-        axs[i].axis('off')
+# Change: Use index [1] (the bottom plot)
+axs[1].plot(fft_freqs[pos_mask], np.abs(fft_vals[pos_mask]))
+axs[1].set_title("FFT spectrum of the filtered signal (HP 0.5 Hz)")
+axs[1].set_xlabel("Frequency [Hz]")
+axs[1].set_ylabel("Magnitude")
 
+# We removed the loop that hid the other axes because there are no empty axes left.
 plt.tight_layout()
 plt.show()

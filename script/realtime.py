@@ -35,19 +35,23 @@ if ser is None:
 
 # === buffers ===
 max_len = 200
-num_channels = 8
+num_channels = 1
 data_buffers = [deque([0]*max_len, maxlen=max_len) for _ in range(num_channels)]
 x_vals = np.arange(max_len)
 
 # === figure ===
 fig, axs = plt.subplots(num_channels, 1, figsize=(10, 20))
+# When `num_channels == 1`, `plt.subplots` returns a single Axes object
+# instead of an array. Make sure `axs` is always indexable the same way.
+if num_channels == 1:
+    axs = [axs]
 lines = []
 
 for i in range(num_channels):
     l, = axs[i].plot(x_vals, data_buffers[i], lw=1.5)
     axs[i].set_xlim(0, max_len - 1)
     axs[i].set_ylim(-5, 5)   # set something sane; update later if needed
-    axs[i].set_title(f"channel {i+1}")
+    axs[i].set_title(f"Channel {i+1}")
     lines.append(l)
 
 plt.subplots_adjust(hspace=0.3)
@@ -63,7 +67,7 @@ def update(frame):
         if len(parts) < num_channels:
             return lines
 
-        vals = [float(v) for v in parts[:num_channels]]
+        vals = [int(v) for v in parts[:num_channels]]
 
         for i in range(num_channels):
             data_buffers[i].append((vals[i] / (2**24)) * 10 - 5)
