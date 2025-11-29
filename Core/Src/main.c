@@ -113,7 +113,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  Init_ADS();
+  ADS_Init();
   while (1)
   {
     /* USER CODE END WHILE */
