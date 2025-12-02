@@ -45,7 +45,6 @@ filtered_signal = signal_hp
 fft_vals = np.fft.fft(filtered_signal)
 
 # Rysowanie wykresów
-# Change: Create only 2 rows instead of 8. 
 # You can adjust figsize (width, height) as preferred.
 fig, axs = plt.subplots(2, 1, figsize=(10, 8))
 
@@ -53,9 +52,11 @@ fig, axs = plt.subplots(2, 1, figsize=(10, 8))
 # Oś czasu w sekundach
 t = np.arange(N) / Fs
 
+limit=100
+
 # Change: Use index [0] (the top plot)
-axs[0].plot(t, signal, color='0.7', label='Original')
-axs[0].plot(t, filtered_signal, color='C0', label='HP 0.5 Hz')
+axs[0].plot(t[0:limit], signal[0:limit], color='0.7', label='Original')
+axs[0].plot(t[0:limit], filtered_signal[0:limit], color='C0', label='HP 0.5 Hz')
 axs[0].set_title("Signal in time (column 3) - original vs filter")
 axs[0].set_xlabel("Time [s]")
 axs[0].set_ylabel("Value")
