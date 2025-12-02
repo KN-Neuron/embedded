@@ -18,6 +18,7 @@
 
 int stat;
 int32_t channelData[8];
+uint8_t channelDatabytes[24];
 
 
 /*** SPI FUNCTIONS ***/
@@ -93,12 +94,17 @@ static void ADS_RDATA() {
 		inByte3 = SPI_Receive();
 		channelData[i] = (inByte1 << 16) | (inByte2 << 8) | inByte3;
 	}
-
+	// for (i = 0; i < 24; i++) {
+	// 	channelDatabytes[i] = SPI_Receive();
+	// }
 	SPI_Set();
 
 	// printf("ADS: %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld \r\n",
 	// 		channelData[0], channelData[1], channelData[2], channelData[3],
 	// 		channelData[4], channelData[5], channelData[6], channelData[7]);
+	// printf("ADS: %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld\r\n",
+	// 		0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF,
+	// 		0xFFFFFF, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF);
 
 	printf("ADS: %ld\r\n", channelData[0]);
 }
@@ -107,7 +113,7 @@ static void ADS_RDATA() {
 void ADS_Init() {
 	/* 0x50 = powered on, 12x gain, SRB2 open, normal input */
 	// int mode = 0b01010000;
-	int mode = 0;
+	int mode = 0b01000000;
 
 	puts("Start INIT ADS\r\n");
 	ADS_Transmit(_RESET);
