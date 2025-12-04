@@ -14,10 +14,10 @@
 #include "ADS.h"
 
 /*** ADS RESPONSE VARIABLES ***/
+volatile int stat;
 
-int stat;
-int32_t channelData[8];
-
+#define DATA_SIZE_BYTES 25
+uint8_t channelDatabytes[DATA_SIZE_BYTES];
 
 /*** SPI FUNCTIONS ***/
 
@@ -39,7 +39,6 @@ void SPI_Transmit(uint8_t data) {
 	HAL_SPI_Transmit(&hspi1, &data, 1, 1000);
 }
 
-
 /*** ADS FUNCTIONS ***/
 
 void ADS_Transmit(uint8_t data) {
@@ -53,7 +52,7 @@ static void ADS_START() {
 }
 
 static void ADS_WREG(uint8_t _address, uint8_t _value) {
-	puts("Using WREG command\n\r");
+	// puts("Using WREG command\n\r");
 	uint8_t opcode1 = _address + 0x40;
 	SPI_Clear();
 	SPI_Transmit(opcode1);
@@ -64,9 +63,8 @@ static void ADS_WREG(uint8_t _address, uint8_t _value) {
 
 /* Read data from the ADS. */
 static void ADS_RDATA() {
-	uint8_t inByte, inByte1, inByte2, inByte3;
+	uint8_t inByte = 0;
 	int i;
-	int nchan = 8;
 	stat = 0;
 
 	SPI_Clear();
@@ -85,34 +83,29 @@ static void ADS_RDATA() {
 	}
 	// printf("Status: %d\r\n", stat);
 
-	/** Receive data from each channel. */
-	for (i = 0; i < nchan; i++) {
-		inByte1 = SPI_Receive();
-		inByte2 = SPI_Receive();
-		inByte3 = SPI_Receive();
-		channelData[i] = (inByte1 << 16) | (inByte2 << 8) | inByte3;
+	/* Receive all channel data at the same time */
+	for (i = 1; i < DATA_SIZE_BYTES; i++) {
+		channelDatabytes[i] = SPI_Receive();
 	}
-
 	SPI_Set();
 
-	// printf("ADS: %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld \r\n",
-	// 		channelData[0], channelData[1], channelData[2], channelData[3],
-	// 		channelData[4], channelData[5], channelData[6], channelData[7]);
-
-	printf("ADS: %ld\r\n", channelData[0]);
+	HAL_UART_Transmit(&huart3, channelDatabytes, DATA_SIZE_BYTES,
+			HAL_MAX_DELAY);
 }
 
 /* Initialize the ADS. */
 void ADS_Init() {
 	/* 0x50 = powered on, 12x gain, SRB2 open, normal input */
 	// int mode = 0b01010000;
+	__disable_irq();
 	int mode = 0;
+	channelDatabytes[0] = 'A'; //A
 
-	puts("Start INIT ADS\r\n");
+	// puts("Start INIT ADS\r\n");
 	ADS_Transmit(_RESET);
-	puts("Send RESET command\r\n");
+	// puts("Send RESET command\r\n");
 	ADS_Transmit(_SDATAC);
-	puts("Send SDATAC command\r\n");
+	// puts("Send SDATAC command\r\n");
 	ADS_WREG(CONFIG1, 0x06);
 	ADS_WREG(CONFIG2, 0x10);
 	ADS_WREG(CONFIG3, 0xDC);
@@ -139,12 +132,16 @@ void ADS_Init() {
 	ADS_WREG(0x18, 0x0A);
 	ADS_WREG(0x19, 0xE3);
 	ADS_START();
+	__enable_irq();
 }
 
-
 /*** EXTI CALLBACK (DRDY RESPONSE) ***/
+#if defined(STM32C0)
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
+#elif defined(STM32H7)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == DRDY_Pin){
+#endif
+	if (GPIO_Pin == DRDY_Pin) {
 		ADS_RDATA();
 		ADS_START();
 	}
