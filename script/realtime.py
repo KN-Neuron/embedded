@@ -19,15 +19,12 @@ else:
     raise EnvironmentError(f'unsupported platform: {platform}')
 
 ser = None
-for port in ports:
-    try:
-        s = Serial(port, baudrate=115200, timeout=0.01)
-        if s.is_open:
-            ser = s
-            print(f"connected to {port}")
-            break
-    except OSError:
-        continue
+
+port = 'COM54'
+s = Serial(port, baudrate=115200, timeout=1.0)
+if s.is_open:
+    ser = s
+    print(f"connected to {port}")
 
 if ser is None:
     print("STM32 not found")
