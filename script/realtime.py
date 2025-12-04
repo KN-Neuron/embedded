@@ -47,31 +47,59 @@ lines = []
 for i in range(num_channels):
     l, = axs[i].plot(x_vals, data_buffers[i], lw=1.5)
     axs[i].set_xlim(0, max_len - 1)
-    axs[i].set_ylim(-5, 5)   # set something sane; update later if needed
+    axs[i].set_ylim(-0.5, 0.5)   # set something sane; update later if needed
     axs[i].set_title(f"Channel {i+1}")
     lines.append(l)
 
 plt.subplots_adjust(hspace=0.3)
 
+
+### decoding starts
+def process_data(binary_data):
+    """
+    Converts 24 bytes of raw data into 8 integers (3 bytes each).
+    """
+    numbers = []
+
+    # Iterate from 0 to 24, stepping 3 bytes at a time
+    for i in range(0, 24, 3):
+        # 1. Slice out the 3-byte chunk
+        chunk = binary_data[i : i+3]
+
+        # 'byteorder' determines if the first byte is the smallest (little)
+        # or largest (big) part of the number.
+        value = int.from_bytes(chunk, byteorder='little', signed=True)
+
+        numbers.append(value)
+
+    return numbers
+
 # === animation ===
 def update(frame):
     try:
-        raw = ser.readline().decode('latin-1', errors='ignore').strip()
-        if not raw.startswith("ADS:"):
-            return lines
+        ser.reset_input_buffer()
+        header = ser.read(1)
+        
+        # 2. Check if the byte is the Header 'A'
+        if header == b'A':
+            # 3. If header matches, read the remaining 24 bytes
+            payload = ser.read(24)
+            
+            # Verify we actually got all 24 bytes (didn't time out)
+            if len(payload) == 24:
+                vals = process_data(payload)
+                # print(vals)
+            else:
+                print("Incomplete packet received.")
+                return lines
 
-        parts = raw.split(':', 1)[1].split(',')
-        if len(parts) < num_channels:
-            return lines
-
-        vals = [int(v) for v in parts[:num_channels]]
-
-        for i in range(num_channels):
-            data_buffers[i].append((vals[i] / (2**24)) * 10 - 5)
-            lines[i].set_ydata(data_buffers[i])
-
+            for i in range(num_channels):
+            # data_buffers[i].append((vals[i] / (2**24)) * 10)
+                data_buffers[i].append((vals[i] / (2**24)))
+                lines[i].set_ydata(data_buffers[i])
     except Exception as e:
-        print("err:", e)
+        print("Error:", e)
+        breakpoint()
 
     return lines
 
