@@ -16,3 +16,8 @@ log
 
 # Map files
 *.map
+
+# Data files
+data/*.csv
+# My python .venv (idk how to do it other way than in script folder)
+script/.venv/
